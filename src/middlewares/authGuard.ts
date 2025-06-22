@@ -13,6 +13,6 @@ export const authGuard = (req: Request, res: Response, next: NextFunction) => {
         (req as any).user = decoded;
         next();
     } catch (err) {
-        res.status(401).json({ message: 'Unauthorized: Invalid token' });
+        res.status(401).json({ message: 'Unauthorized: Invalid token', err: err });
     }
 };

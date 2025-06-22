@@ -1,5 +1,6 @@
 import express from 'express';
-import http from 'http';
+import http, { Server as HttpServer } from 'http';
+import https, { Server as HttpsServer } from 'https';
 // import https from 'https';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
@@ -11,11 +12,23 @@ import formData from 'express-form-data';
 import { autoLoadRoutes } from './utils/autoRouter';
 import { initSocketIO } from './sockets';
 import { errorHandler, notFound } from './middlewares/errorsMiddleware';
+import { config } from './config';
 
 dotenv.config();
+const PORT = config.env.PORT || 3000;
 
 const app = express();
-const server = http.createServer(app);
+const httpsOptions = config.getHttpsKeys();
+
+let server: HttpServer | HttpsServer;
+if (httpsOptions) {
+    server = https.createServer(httpsOptions, app);
+    console.log(`✅ HTTPS Server ready on https://localhost:${PORT}`);
+} else {
+    server = http.createServer(app);
+    console.log(`⚠️  HTTP Server running on http://localhost:${PORT}`);
+}
+
 initSocketIO(server); // <--- initialize socket with server
 
 // Middleware
