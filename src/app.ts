@@ -1,6 +1,6 @@
 import express from 'express';
 import http, { Server as HttpServer } from 'http';
-import https, { Server as HttpsServer } from "https";
+import https, { Server as HttpsServer } from 'https';
 // import https from 'https';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';

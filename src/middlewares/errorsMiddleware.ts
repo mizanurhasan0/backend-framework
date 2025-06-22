@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodSchema } from 'zod';
 
-export const notFound = (req: Request, res: Response, _next: NextFunction) => {
+export const notFound = (req: Request, res: Response) => {
     res.status(404).json({
         success: false,
         message: `Route ${req.originalUrl} not found.`,
     });
 };
 
-export const errorHandler = (err: any, _req: Request, res: Response, _next: NextFunction) => {
+export const errorHandler = (err: any, _req: Request, res: Response) => {
     console.error('Error:', err);
     res.status(err.status || 500).json({
         success: false,

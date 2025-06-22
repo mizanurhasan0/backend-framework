@@ -1,8 +1,8 @@
-import { db } from "./db";
-import { env } from "./env";
-import { jwt } from "./jwt";
-import { mail } from "./mail";
-import { getHttpsKeys } from "./ssl";
+import { db } from './db';
+import { env } from './env';
+import { jwt } from './jwt';
+import { mail } from './mail';
+import { getHttpsKeys } from './ssl';
 
 export const config = {
     env,
@@ -10,4 +10,4 @@ export const config = {
     mail,
     jwt,
     getHttpsKeys
-}
+};

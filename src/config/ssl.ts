@@ -12,6 +12,6 @@ export const getHttpsKeys = () => {
         return { key, cert };
     } catch (error) {
         console.warn('🔒 SSL key/cert not found, falling back to HTTP.');
-        return null;
+        return error;
     }
 };
