@@ -10,7 +10,7 @@ import formData from 'express-form-data';
 // Load Routes Automatically
 import { autoLoadRoutes } from './utils/autoRouter';
 import { initSocketIO } from './sockets';
-import { errorHandler, notFound } from './middlewares/ErrorsMiddleware';
+import { errorHandler, notFound } from './middlewares/errorsMiddleware';
 
 dotenv.config();
 
