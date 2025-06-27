@@ -19,16 +19,25 @@ const PORT = config.env.PORT || 3000;
 
 const app = express();
 const httpsOptions = config.getHttpsKeys();
-
+console.log({ httpsOptions });
 let server: HttpServer | HttpsServer;
-if (httpsOptions) {
+
+if (httpsOptions && httpsOptions.key && httpsOptions.cert) {
     server = https.createServer(httpsOptions, app);
     console.log(`✅ HTTPS Server ready on https://localhost:${PORT}`);
 } else {
     server = http.createServer(app);
     console.log(`⚠️  HTTP Server running on http://localhost:${PORT}`);
 }
-
+// Optional: test connection on startup
+(async () => {
+    try {
+        // const health = await config.elasticClient.ping();
+        // console.log('✅ Elasticsearch connected');
+    } catch (err) {
+        console.error('❌ Elasticsearch not reachable', err);
+    }
+})();
 initSocketIO(server); // <--- initialize socket with server
 
 // Middleware
