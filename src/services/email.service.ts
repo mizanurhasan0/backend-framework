@@ -31,6 +31,22 @@ const getTemplate = (template: string, data: Record<string, any>): string => {
             <h2>Hello ${data.name}!</h2>
             <p>Click the link below to reset your password:</p>
             <a href="${data.resetUrl}">Reset Password</a>
+        `,
+        'order-confirmation': `
+            <h2>Order Confirmation</h2>
+            <p>Your order has been placed successfully!</p>
+            <p><strong>Order Number:</strong> ${data.orderNumber}</p>
+            <p><strong>Total Amount:</strong> ৳${data.totalAmount}</p>
+            <p><strong>Items:</strong> ${data.items}</p>
+            <p>Thank you for your purchase!</p>
+        `,
+        'payment-confirmation': `
+            <h2>Payment Confirmed</h2>
+            <p>Your payment has been processed successfully!</p>
+            <p><strong>Order Number:</strong> ${data.orderNumber}</p>
+            <p><strong>Amount:</strong> ৳${data.amount}</p>
+            <p><strong>Transaction ID:</strong> ${data.transactionId}</p>
+            <p>Your order is now being processed.</p>
         `
     };
 
