@@ -10,8 +10,6 @@ import { zodValidation } from '../middlewares/errorsMiddleware';
 import {
     authGuard,
     requirePermission,
-    requireAnyPermission,
-    requireAllPermissions
 } from '../middlewares/authGuard';
 
 const router = Router();

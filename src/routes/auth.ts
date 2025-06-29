@@ -16,7 +16,6 @@ import { zodValidation } from '../middlewares/errorsMiddleware';
 import {
     authGuard,
     requirePermission,
-    requireAnyPermission,
     rateLimit
 } from '../middlewares/authGuard';
 

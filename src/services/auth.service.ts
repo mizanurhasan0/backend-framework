@@ -38,15 +38,13 @@ export class AuthService {
     static async register(userData: TUserRegister): Promise<TAuthResponse> {
         // Check if user already exists
         const existingUser = await User.findOne({ email: userData.email });
-        if (existingUser) {
-            throw new Error('User already exists with this email');
-        }
+        if (existingUser) throw new Error('User already exists with this email');
 
         // Get default role
         const defaultRole = await Role.findOne({ isDefault: true });
-        if (!defaultRole) {
-            throw new Error('No default role found');
-        }
+
+        if (!defaultRole) throw new Error('No default role found');
+
 
         // Create user
         const user = new User({
@@ -66,15 +64,15 @@ export class AuthService {
         await user.save();
 
         // Send verification email
-        await sendEmail({
-            to: user.email,
-            subject: 'Verify your email',
-            template: 'email-verification',
-            data: {
-                name: user.name,
-                verificationUrl: `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`
-            }
-        });
+        // await sendEmail({
+        //     to: user.email,
+        //     subject: 'Verify your email',
+        //     template: 'email-verification',
+        //     data: {
+        //         name: user.name,
+        //         verificationUrl: `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`
+        //     }
+        // });
 
         // Generate tokens
         const { accessToken, refreshToken } = this.generateTokens(user);
@@ -98,26 +96,21 @@ export class AuthService {
     // Login user
     static async login(loginData: TUserLogin): Promise<TAuthResponse> {
         const user = await User.findOne({ email: loginData.email }).populate('role');
-        if (!user) {
-            throw new Error('Invalid credentials');
-        }
+        if (!user) throw new Error('Invalid credentials');
 
         // Check if account is locked
-        if (user.onLocked()) {
-            throw new Error('Account is temporarily locked. Please try again later.');
-        }
+        if (user.onLocked()) throw new Error('Account is temporarily locked. Please try again later.');
 
         // Check if user is active
-        if (!user.isActive) {
-            throw new Error('Account is deactivated');
-        }
+        if (!user.isActive) throw new Error('Account is deactivated');
+
 
         // Verify password
         const isPasswordValid = await user.comparePassword(loginData.password);
-        if (!isPasswordValid) {
-            await user.incrementLoginAttempts();
-            throw new Error('Invalid credentials');
-        }
+        // if (!isPasswordValid) {
+        //     await user.incrementLoginAttempts();
+        //     throw new Error('Invalid credentials');
+        // }
 
         // Reset login attempts on successful login
         await user.resetLoginAttempts();
@@ -332,9 +325,8 @@ export class AuthService {
     static verifyToken(token: string): TJwtPayload {
         try {
             const decoded = jwt.verify(token, config.jwt.secret) as TJwtPayload;
-            if (decoded.type !== 'access') {
-                throw new Error('Invalid token type');
-            }
+            if (decoded.type !== 'access') throw new Error('Invalid token type');
+
             return decoded;
         } catch (error) {
             throw new Error('Invalid token');

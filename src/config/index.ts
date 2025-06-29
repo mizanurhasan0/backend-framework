@@ -1,5 +1,5 @@
 import { db } from './db';
-import { elasticClient } from './elastic';
+import { elasticClient, testElasticConnection } from './elastic';
 import { env } from './env';
 import { jwt } from './jwt';
 import { mail } from './mail';
@@ -11,5 +11,9 @@ export const config = {
     mail,
     jwt,
     getHttpsKeys,
-    elasticClient
+    elasticClient,
+    testElasticConnection,
 };
+
+// Type for the entire config object
+export type Config = typeof config;
