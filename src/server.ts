@@ -24,7 +24,7 @@ class Server {
       logger.logStartupStep('Starting server...');
 
       // Analyze MongoDB URI for debugging
-      getMongoUriInfo();
+      // getMongoUriInfo();
 
       // Connect to MongoDB with optimized settings
       logger.startTimer('database-connection');
@@ -63,8 +63,8 @@ class Server {
         serverSelectionTimeoutMS: config.db.options.serverSelectionTimeoutMS,
         connectTimeoutMS: config.db.options.connectTimeoutMS,
         bufferCommands: config.db.options.bufferCommands,
-        ssl: config.db.options.ssl,
-        sslValidate: config.db.options.sslValidate,
+        // ssl: config.db.options.ssl,
+        // sslValidate: config.db.options.sslValidate,
       });
 
       // Use optimized MongoDB connection options from config

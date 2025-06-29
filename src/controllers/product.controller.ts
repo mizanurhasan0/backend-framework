@@ -4,8 +4,10 @@ import { ProductService, ProductFilters, ProductSort, ProductPagination } from '
 export class ProductController {
     // Create a new product
     static async createProduct(req: Request, res: Response) {
+
         try {
-            const product = await ProductService.createProduct(req.body);
+            const imageNames = (req.files as Express.Multer.File[])?.map((file: Express.Multer.File) => file.filename) || [];
+            const product = await ProductService.createProduct({ ...req.body, images: imageNames });
             res.status(201).json({
                 success: true,
                 message: 'Product created successfully',

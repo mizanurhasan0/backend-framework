@@ -20,10 +20,10 @@ import {
 } from '../middlewares/authGuard';
 
 const router = Router();
-
+// rateLimit(5, 15 * 60 * 1000),
 // Public routes (no authentication required)
 router.post('/register', zodValidation(registerSchema), AuthController.register);
-router.post('/login', zodValidation(loginSchema), rateLimit(5, 15 * 60 * 1000), AuthController.login);
+router.post('/login', zodValidation(loginSchema), AuthController.login);
 router.post('/google', zodValidation(googleAuthSchema), AuthController.googleAuth);
 router.post('/refresh', zodValidation(refreshTokenSchema), AuthController.refreshToken);
 router.post('/forgot-password', zodValidation(forgotPasswordSchema), AuthController.forgotPassword);

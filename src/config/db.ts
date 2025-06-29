@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { env } from './env';
 
 // Optimized database configuration for Mongoose 7.0.0
@@ -35,8 +34,8 @@ export const db = {
         compressors: ['zlib' as const],
 
         // SSL settings (if needed)
-        ssl: env.NODE_ENV === 'production',
-        sslValidate: env.NODE_ENV === 'production',
+        // ssl: env.NODE_ENV === 'production',
+        // sslValidate: env.NODE_ENV === 'production',
     },
     // Connection event handlers
     events: {

@@ -3,14 +3,13 @@ import http, { Server as HttpServer } from 'http';
 import https, { Server as HttpsServer } from 'https';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import path from 'path';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import cors from 'cors';
 
 // Internal imports
 import { fastRouteLoader } from './utils/autoRouter';
-import { initSocketIO } from './sockets';
+// import { initSocketIO } from './sockets';
 import { errorHandler, notFound } from './middlewares/errorsMiddleware';
 import { config } from './config';
 import { logger } from './utils/logger';
@@ -68,18 +67,18 @@ class App {
         this.app.use(limiter);
 
         // Stricter rate limiting for auth routes
-        const authLimiter = rateLimit({
-            windowMs: 15 * 60 * 1000, // 15 minutes
-            max: 5, // limit each IP to 5 requests per windowMs
-            message: {
-                error: 'Too many authentication attempts, please try again later.',
-                retryAfter: '15 minutes'
-            },
-            standardHeaders: true,
-            legacyHeaders: false,
-        });
+        // const authLimiter = rateLimit({
+        //     windowMs: 15 * 60 * 1000, // 15 minutes
+        //     max: 5, // limit each IP to 5 requests per windowMs
+        //     message: {
+        //         error: 'Too many authentication attempts, please try again later.',
+        //         retryAfter: '15 minutes'
+        //     },
+        //     standardHeaders: true,
+        //     legacyHeaders: false,
+        // });
 
-        this.app.use('/auth', authLimiter);
+        // this.app.use('/auth', authLimiter);
     }
 
     private setupMiddleware(): void {
@@ -102,45 +101,6 @@ class App {
         this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
         this.app.use(cookieParser());
 
-        // Static files with security headers
-        this.app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
-            maxAge: '1d',
-            etag: true,
-            setHeaders: (res, path) => {
-                res.set('X-Content-Type-Options', 'nosniff');
-                res.set('X-Frame-Options', 'DENY');
-            }
-        }));
-
-        // Health check endpoint
-        this.app.get('/health', (req, res) => {
-            res.status(200).json({
-                status: 'OK',
-                timestamp: new Date().toISOString(),
-                uptime: process.uptime(),
-                environment: config.env.NODE_ENV,
-                version: process.env.npm_package_version || '1.0.0',
-                memory: process.memoryUsage(),
-            });
-        });
-
-        // API documentation endpoint
-        this.app.get('/api-docs', (req, res) => {
-            res.json({
-                message: 'API Documentation',
-                version: '1.0.0',
-                endpoints: {
-                    auth: '/auth',
-                    users: '/user',
-                    products: '/product',
-                    categories: '/category',
-                    cart: '/cart',
-                    orders: '/order',
-                    roles: '/role'
-                },
-                documentation: 'See README.md for detailed API documentation'
-            });
-        });
     }
 
     private setupRoutes(): void {
@@ -175,41 +135,41 @@ class App {
         return this.app;
     }
 
-    public async start(): Promise<void> {
-        try {
-            logger.startTimer('app-initialization');
+    // public async start(): Promise<void> {
+    //     try {
+    //         logger.startTimer('app-initialization');
 
-            // Initialize Socket.IO
-            logger.startTimer('socket-initialization');
-            initSocketIO(this.server);
-            logger.endTimer('socket-initialization');
+    //         // Initialize Socket.IO
+    //         // logger.startTimer('socket-initialization');
+    //         // initSocketIO(this.server);
+    //         logger.endTimer('socket-initialization');
 
-            // Test external services
-            logger.startTimer('external-services-test');
-            await this.testExternalServices();
-            logger.endTimer('external-services-test');
+    //         // Test external services
+    //         logger.startTimer('external-services-test');
+    //         // await this.testExternalServices();
+    //         logger.endTimer('external-services-test');
 
-            const appTime = logger.endTimer('app-initialization');
-            logger.logStartupStep(`Server ready on port ${config.env.PORT}`, appTime);
-            logger.logStartupStep(`📚 API Documentation: http://localhost:${config.env.PORT}/api-docs`);
-            logger.logStartupStep(`💚 Health Check: http://localhost:${config.env.PORT}/health`);
-        } catch (error) {
-            logger.error('Failed to start server:', error);
-            process.exit(1);
-        }
-    }
+    //         const appTime = logger.endTimer('app-initialization');
+    //         logger.logStartupStep(`Server ready on port ${config.env.PORT}`, appTime);
+    //         logger.logStartupStep(`📚 API Documentation: http://localhost:${config.env.PORT}/api-docs`);
+    //         logger.logStartupStep(`💚 Health Check: http://localhost:${config.env.PORT}/health`);
+    //     } catch (error) {
+    //         logger.error('Failed to start server:', error);
+    //         process.exit(1);
+    //     }
+    // }
 
-    private async testExternalServices(): Promise<void> {
-        try {
-            // Test Elasticsearch connection
-            if (config.elasticClient) {
-                await config.elasticClient.ping();
-                logger.info('✅ Elasticsearch connected');
-            }
-        } catch (error) {
-            logger.warn('❌ Elasticsearch not reachable:', error);
-        }
-    }
+    // private async testExternalServices(): Promise<void> {
+    //     try {
+    //         // Test Elasticsearch connection
+    //         if (config.elasticClient) {
+    //             await config.elasticClient.ping();
+    //             logger.info('✅ Elasticsearch connected');
+    //         }
+    //     } catch (error) {
+    //         logger.warn('❌ Elasticsearch not reachable:', error);
+    //     }
+    // }
 }
 
 // Create and export app instance
