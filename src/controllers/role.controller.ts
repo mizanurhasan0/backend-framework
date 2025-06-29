@@ -4,6 +4,7 @@ import { RoleService } from '../services/role.service';
 export class RoleController {
     // Create a new role
     static async createRole(req: Request, res: Response) {
+        console.log(req.body);
         try {
             const role = await RoleService.createRole(req.body);
             res.status(201).json({
@@ -12,6 +13,7 @@ export class RoleController {
                 data: role
             });
         } catch (error: any) {
+            console.log(error);
             res.status(400).json({
                 success: false,
                 message: error.message

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodSchema } from 'zod';
+import { Schema } from 'joi';
 
 export const notFound = (req: Request, res: Response) => {
     res.status(404).json({
@@ -29,5 +30,19 @@ export const zodValidation = (schema: ZodSchema<any>) => {
                 errors: err.errors || err.message,
             });
         }
+    };
+};
+
+export const joiValidation = (schema: Schema) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        const { error } = schema.validate(req.body);
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: 'Validation Error',
+                errors: error.details.map(detail => detail.message),
+            });
+        }
+        next();
     };
 };

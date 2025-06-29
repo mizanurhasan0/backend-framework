@@ -1,197 +1,215 @@
 import { Request, Response } from 'express';
-import {
-    getUserCart,
-    addToCart,
-    updateCartItem,
-    removeFromCart,
-    clearCart,
-    getCartSummary
-} from '../services/cart.service';
-import { TAddToCart, TUpdateCartItem } from '../types/TCart';
+import { CartService } from '../services/cart.service';
 
 export class CartController {
     // Get user's cart
-    static async getCart(req: Request, res: Response): Promise<void> {
+    static async getCart(req: Request, res: Response) {
         try {
-            const userId = req.user?.userId;
-            if (!userId) {
-                res.status(401).json({ success: false, message: 'Unauthorized' });
-                return;
-            }
+            const userId = (req as any).user.id;
+            const cart = await CartService.getUserCart(userId);
 
-            const cart = await getUserCart(userId);
+            if (!cart) {
+                return res.json({
+                    success: true,
+                    data: {
+                        id: null,
+                        items: [],
+                        totalAmount: 0,
+                        totalItems: 0
+                    }
+                });
+            }
 
             res.json({
                 success: true,
-                data: cart || { items: [], totalAmount: 0, totalItems: 0 }
+                data: cart
             });
-        } catch (error) {
+        } catch (error: any) {
             res.status(500).json({
                 success: false,
-                message: 'Failed to get cart',
-                error: error instanceof Error ? error.message : 'Unknown error'
+                message: error.message
             });
         }
     }
 
     // Add item to cart
-    static async addToCart(req: Request, res: Response): Promise<void> {
+    static async addToCart(req: Request, res: Response) {
         try {
-            const userId = req.user?.userId;
-            if (!userId) {
-                res.status(401).json({ success: false, message: 'Unauthorized' });
-                return;
-            }
+            const userId = (req as any).user.id;
+            const cartData = req.body;
 
-            const cartData: TAddToCart = req.body;
-
-            // Validate required fields
-            if (!cartData.productId || !cartData.quantity) {
-                res.status(400).json({
-                    success: false,
-                    message: 'Product ID and quantity are required'
-                });
-                return;
-            }
-
-            if (cartData.quantity <= 0) {
-                res.status(400).json({
-                    success: false,
-                    message: 'Quantity must be greater than 0'
-                });
-                return;
-            }
-
-            const cart = await addToCart(userId, cartData);
+            const cart = await CartService.addToCart(userId, cartData);
 
             res.json({
                 success: true,
                 message: 'Item added to cart successfully',
                 data: cart
             });
-        } catch (error) {
-            res.status(500).json({
+        } catch (error: any) {
+            res.status(400).json({
                 success: false,
-                message: 'Failed to add item to cart',
-                error: error instanceof Error ? error.message : 'Unknown error'
+                message: error.message
             });
         }
     }
 
     // Update cart item
-    static async updateCartItem(req: Request, res: Response): Promise<void> {
+    static async updateCartItem(req: Request, res: Response) {
         try {
-            const userId = req.user?.userId;
-            if (!userId) {
-                res.status(401).json({ success: false, message: 'Unauthorized' });
-                return;
-            }
+            const userId = (req as any).user.id;
+            const updateData = req.body;
 
-            const updateData: TUpdateCartItem = req.body;
-
-            if (!updateData.itemId || updateData.quantity === undefined) {
-                res.status(400).json({
-                    success: false,
-                    message: 'Item ID and quantity are required'
-                });
-                return;
-            }
-
-            const cart = await updateCartItem(userId, updateData);
+            const cart = await CartService.updateCartItem(userId, updateData);
 
             res.json({
                 success: true,
                 message: 'Cart item updated successfully',
                 data: cart
             });
-        } catch (error) {
-            res.status(500).json({
+        } catch (error: any) {
+            res.status(400).json({
                 success: false,
-                message: 'Failed to update cart item',
-                error: error instanceof Error ? error.message : 'Unknown error'
+                message: error.message
             });
         }
     }
 
     // Remove item from cart
-    static async removeFromCart(req: Request, res: Response): Promise<void> {
+    static async removeFromCart(req: Request, res: Response) {
         try {
-            const userId = req.user?.userId;
-            if (!userId) {
-                res.status(401).json({ success: false, message: 'Unauthorized' });
-                return;
-            }
-
+            const userId = (req as any).user.id;
             const { itemId } = req.params;
 
-            if (!itemId) {
-                res.status(400).json({
-                    success: false,
-                    message: 'Item ID is required'
-                });
-                return;
-            }
-
-            const cart = await removeFromCart(userId, itemId);
+            const cart = await CartService.removeFromCart(userId, itemId);
 
             res.json({
                 success: true,
                 message: 'Item removed from cart successfully',
                 data: cart
             });
-        } catch (error) {
-            res.status(500).json({
+        } catch (error: any) {
+            res.status(400).json({
                 success: false,
-                message: 'Failed to remove item from cart',
-                error: error instanceof Error ? error.message : 'Unknown error'
+                message: error.message
             });
         }
     }
 
     // Clear cart
-    static async clearCart(req: Request, res: Response): Promise<void> {
+    static async clearCart(req: Request, res: Response) {
         try {
-            const userId = req.user?.userId;
-            if (!userId) {
-                res.status(401).json({ success: false, message: 'Unauthorized' });
-                return;
-            }
+            const userId = (req as any).user.id;
 
-            await clearCart(userId);
+            await CartService.clearCart(userId);
 
             res.json({
                 success: true,
                 message: 'Cart cleared successfully'
             });
-        } catch (error) {
+        } catch (error: any) {
             res.status(500).json({
                 success: false,
-                message: 'Failed to clear cart',
-                error: error instanceof Error ? error.message : 'Unknown error'
+                message: error.message
             });
         }
     }
 
     // Get cart summary
-    static async getCartSummary(req: Request, res: Response): Promise<void> {
+    static async getCartSummary(req: Request, res: Response) {
         try {
-            const userId = req.user?.userId;
-            if (!userId) {
-                res.status(401).json({ success: false, message: 'Unauthorized' });
-                return;
-            }
-
-            const summary = await getCartSummary(userId);
+            const userId = (req as any).user.id;
+            const summary = await CartService.getCartSummary(userId);
 
             res.json({
                 success: true,
                 data: summary
             });
-        } catch (error) {
+        } catch (error: any) {
             res.status(500).json({
                 success: false,
-                message: 'Failed to get cart summary',
-                error: error instanceof Error ? error.message : 'Unknown error'
+                message: error.message
+            });
+        }
+    }
+
+    // Validate cart
+    static async validateCart(req: Request, res: Response) {
+        try {
+            const userId = (req as any).user.id;
+            const validation = await CartService.validateCart(userId);
+
+            res.json({
+                success: true,
+                data: validation
+            });
+        } catch (error: any) {
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    // Get cart by ID (admin only)
+    static async getCartById(req: Request, res: Response) {
+        try {
+            const { cartId } = req.params;
+            const cart = await CartService.getCartById(cartId);
+
+            if (!cart) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Cart not found'
+                });
+            }
+
+            res.json({
+                success: true,
+                data: cart
+            });
+        } catch (error: any) {
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    // Get all carts (admin only)
+    static async getAllCarts(req: Request, res: Response) {
+        try {
+            const { page, limit, ...filters } = req.query;
+            const result = await CartService.getAllCarts(
+                Number(page) || 1,
+                Number(limit) || 10,
+                filters
+            );
+
+            res.json({
+                success: true,
+                data: result
+            });
+        } catch (error: any) {
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    // Get cart statistics (admin only)
+    static async getCartStats(req: Request, res: Response) {
+        try {
+            const stats = await CartService.getCartStats();
+
+            res.json({
+                success: true,
+                data: stats
+            });
+        } catch (error: any) {
+            res.status(500).json({
+                success: false,
+                message: error.message
             });
         }
     }

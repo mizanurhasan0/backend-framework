@@ -3,7 +3,7 @@ import { Cart } from '../models/cart.model';
 import { Product, IProduct } from '../models/product.model';
 import { TCreateOrder, TOrderResponse, TOrderStatus } from '../types/TOrder';
 import { createBikashPayment, verifyBikashPayment as verifyPayment } from './payment.service';
-import { clearCart } from './cart.service';
+// import { clearCart } from './cart.service';
 import { sendEmail } from './email.service';
 
 // Calculate order totals
@@ -79,7 +79,7 @@ export const createOrder = async (userId: string, orderData: TCreateOrder): Prom
     }
 
     // Clear cart
-    await clearCart(userId);
+    // await clearCart(userId);
 
     // Send order confirmation email
     await sendEmail({

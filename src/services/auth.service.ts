@@ -103,7 +103,7 @@ export class AuthService {
         }
 
         // Check if account is locked
-        if (user.isLocked()) {
+        if (user.onLocked()) {
             throw new Error('Account is temporarily locked. Please try again later.');
         }
 

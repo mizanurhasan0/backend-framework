@@ -25,6 +25,7 @@ export interface IUser extends Document {
   isLocked(): boolean;
   incrementLoginAttempts(): Promise<void>;
   resetLoginAttempts(): Promise<void>;
+  onLocked(): boolean;
 }
 
 const userSchema = new Schema<IUser>({
@@ -140,7 +141,7 @@ userSchema.methods.comparePassword = async function (candidatePassword: string):
 };
 
 // Instance method to check if account is locked
-userSchema.methods.isLocked = function (): boolean {
+userSchema.methods.onLocked = function (): boolean {
   return !!(this.lockUntil && this.lockUntil > new Date());
 };
 
