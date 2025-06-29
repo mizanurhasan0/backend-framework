@@ -119,7 +119,7 @@ export class ProductService {
         // Build sort object
         const sortObj: any = {};
         sortObj[sort.field] = sort.order === 'asc' ? 1 : -1;
-
+        console.log({ query });
         const products = await Product.find(query)
             .populate('category', 'name slug')
             .populate('subCategory', 'name slug')
@@ -127,7 +127,6 @@ export class ProductService {
             .skip(skip)
             .limit(pagination.limit)
             .lean();
-
         const total = await Product.countDocuments(query);
 
         return {
