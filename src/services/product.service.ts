@@ -412,4 +412,71 @@ export class ProductService {
             }
         };
     }
+
+    // Get related products from the same category
+    static async getRelatedProducts(
+        productId: string,
+        limit: number = 8
+    ): Promise<IProduct[]> {
+        // First get the product to find its category
+        const product = await Product.findById(productId).select('category subCategory brand tags');
+
+        if (!product) {
+            return [];
+        }
+
+        // Build query to find related products
+        const query: any = {
+            _id: { $ne: new Types.ObjectId(productId) }, // Exclude the current product
+            isActive: true
+        };
+
+        // Priority 1: Same category and subcategory
+        if (product.category && product.subCategory) {
+            query.$or = [
+                {
+                    category: product.category,
+                    subCategory: product.subCategory
+                },
+                {
+                    category: product.category
+                },
+                {
+                    subCategory: product.subCategory
+                }
+            ];
+        } else if (product.category) {
+            query.category = product.category;
+        } else if (product.subCategory) {
+            query.subCategory = product.subCategory;
+        }
+
+        // If no category found, try to find by brand or tags
+        if (!product.category && !product.subCategory) {
+            const orConditions = [];
+
+            if (product.brand) {
+                orConditions.push({ brand: product.brand });
+            }
+
+            if (product.tags && product.tags.length > 0) {
+                orConditions.push({ tags: { $in: product.tags } });
+            }
+
+            if (orConditions.length > 0) {
+                query.$or = orConditions;
+            }
+        }
+
+        return await Product.find(query)
+            .populate('category', 'name slug')
+            .populate('subCategory', 'name slug')
+            .sort({
+                totalSales: -1,
+                averageRating: -1,
+                viewCount: -1
+            })
+            .limit(limit)
+            .lean();
+    }
 } 

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ProductService, ProductFilters, ProductSort, ProductPagination } from '../services/product.service';
+import { IProduct } from '../models/product.model';
 
 export class ProductController {
     // Create a new product
@@ -88,10 +89,12 @@ export class ProductController {
         }
     }
 
-    // Get product by ID
+    // Get product by ID with related products
     static async getProductById(req: Request, res: Response) {
         try {
             const { productId } = req.params;
+            const { includeRelated = 'true', relatedLimit = '8' } = req.query;
+
             const product = await ProductService.getProductById(productId);
 
             if (!product) {
@@ -104,9 +107,21 @@ export class ProductController {
             // Increment view count
             await ProductService.incrementViewCount(productId);
 
+            // Get related products if requested
+            let relatedProducts: IProduct[] = [];
+            if (includeRelated === 'true') {
+                relatedProducts = await ProductService.getRelatedProducts(
+                    productId,
+                    Number(relatedLimit)
+                );
+            }
+
             res.json({
                 success: true,
-                data: product
+                data: {
+                    product,
+                    relatedProducts: includeRelated === 'true' ? relatedProducts : undefined
+                }
             });
         } catch (error: any) {
             res.status(500).json({
@@ -116,10 +131,12 @@ export class ProductController {
         }
     }
 
-    // Get product by slug
+    // Get product by slug with related products
     static async getProductBySlug(req: Request, res: Response) {
         try {
             const { slug } = req.params;
+            const { includeRelated = 'true', relatedLimit = '8' } = req.query;
+
             const product = await ProductService.getProductBySlug(slug);
 
             if (!product) {
@@ -132,9 +149,21 @@ export class ProductController {
             // Increment view count
             await ProductService.incrementViewCount(product._id.toString());
 
+            // Get related products if requested
+            let relatedProducts: IProduct[] = [];
+            if (includeRelated === 'true') {
+                relatedProducts = await ProductService.getRelatedProducts(
+                    product._id.toString(),
+                    Number(relatedLimit)
+                );
+            }
+
             res.json({
                 success: true,
-                data: product
+                data: {
+                    product,
+                    relatedProducts: includeRelated === 'true' ? relatedProducts : undefined
+                }
             });
         } catch (error: any) {
             res.status(500).json({
