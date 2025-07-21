@@ -21,14 +21,20 @@ router.use(authGuard);
 
 // Product management routes (admin permissions required)
 router.post('/',
-    // requirePermission('product:create'),
-    upload.array('images', 10),
+    requirePermission('product:create'),
+    upload.fields([
+        { name: 'images', maxCount: 10 },
+        { name: 'thumbnail', maxCount: 1 }
+    ]),
     ProductController.createProduct
 );
 
 router.put('/:productId',
     requirePermission('product:update'),
-    upload.array('images', 10),
+    upload.fields([
+        { name: 'images', maxCount: 10 },
+        { name: 'thumbnail', maxCount: 1 }
+    ]),
     ProductController.updateProduct
 );
 

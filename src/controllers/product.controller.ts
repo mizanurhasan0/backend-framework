@@ -7,8 +7,17 @@ export class ProductController {
     static async createProduct(req: Request, res: Response) {
 
         try {
-            const imageNames = (req.files as Express.Multer.File[])?.map((file: Express.Multer.File) => file.filename) || [];
-            const product = await ProductService.createProduct({ ...req.body, images: imageNames });
+            // Handle files from upload.fields()
+            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+            const imageNames = files?.images?.map((file: Express.Multer.File) => file.filename) || [];
+            const thumbnailName = files?.thumbnail?.[0]?.filename || null;
+            
+            const product = await ProductService.createProduct({ 
+                ...req.body, 
+                images: imageNames,
+                thumbnail: thumbnailName
+            });
+            
             res.status(201).json({
                 success: true,
                 message: 'Product created successfully',
@@ -177,7 +186,22 @@ export class ProductController {
     static async updateProduct(req: Request, res: Response) {
         try {
             const { productId } = req.params;
-            const product = await ProductService.updateProduct(productId, req.body);
+            
+            // Handle files from upload.fields()
+            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+            const imageNames = files?.images?.map((file: Express.Multer.File) => file.filename) || [];
+            const thumbnailName = files?.thumbnail?.[0]?.filename || null;
+            
+            // Prepare update data
+            const updateData = { ...req.body };
+            if (imageNames.length > 0) {
+                updateData.images = imageNames;
+            }
+            if (thumbnailName) {
+                updateData.thumbnail = thumbnailName;
+            }
+            
+            const product = await ProductService.updateProduct(productId, updateData);
 
             if (!product) {
                 return res.status(404).json({

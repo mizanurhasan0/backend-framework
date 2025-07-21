@@ -27,7 +27,7 @@ export class AuthService {
             expiresIn: '15m'
         });
 
-        const refreshToken = jwt.sign(refreshPayload, config.jwt.secret, {
+        const refreshToken = jwt.sign(refreshPayload, config.jwt.refreshSecret, {
             expiresIn: '7d'
         });
 
@@ -194,7 +194,7 @@ export class AuthService {
     // Refresh token
     static async refreshToken(refreshToken: string): Promise<TAuthResponse> {
         try {
-            const decoded = jwt.verify(refreshToken, config.jwt.secret) as TJwtPayload;
+            const decoded = jwt.verify(refreshToken, config.jwt.refreshSecret) as TJwtPayload;
 
             if (decoded.type !== 'refresh') {
                 throw new Error('Invalid token type');
